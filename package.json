@@ -6,7 +6,8 @@
     "lint": "eslint --ext .js,.mjs,.jsx .",
     "lint:fix": "eslint --ext .js,.mjs,.jsx . --fix",
     "prepare": "husky install",
-    "watch": "chokidar src -c 'npm run build'"
+    "watch": "chokidar src -c 'npm run build'",
+    "dev": "npm run watch"
   },
   "dependencies": {
     "@geist-ui/core": "^2.3.8",
