@@ -1,8 +1,8 @@
 {
   "appName": {
-    "message": "ChatGPT for Google"
+    "message": "Gmail Composer AI"
   },
   "appDesc": {
-    "message": "Отображение ответа ChatGPT вместе с результатами поиска"
+    "message": "Пишите электронные письма с помощью ChatGPT в Gmail"
   }
 }

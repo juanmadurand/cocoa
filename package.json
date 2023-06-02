@@ -1,6 +1,6 @@
 {
-  "name": "chat-gpt-google-extension",
-  "author": "wong2",
+  "name": "gmail-composer-ai",
+  "author": "juanmadurand",
   "scripts": {
     "build": "node build.mjs",
     "lint": "eslint --ext .js,.mjs,.jsx .",

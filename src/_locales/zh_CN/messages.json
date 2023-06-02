@@ -1,8 +1,8 @@
 {
   "appName": {
-    "message": "ChatGPT for Google"
+    "message": "Gmail Composer AI"
   },
   "appDesc": {
-    "message": "在搜索引擎结果中同时显示ChatGPT的回答"
+    "message": "在 Gmail 上使用 ChatGPT 写电子邮件"
   }
 }
