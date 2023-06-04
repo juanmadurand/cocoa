@@ -1,65 +1,74 @@
+import '@/base.css'
 import { render } from 'preact'
-import '../base.css'
-import { getUserConfig, Language, Theme } from '../config'
-import { detectSystemColorScheme } from '../utils'
-import ChatGPTContainer from './ChatGPTContainer'
-import { config, SearchEngine } from './search-engine-configs'
+import Browser from 'webextension-polyfill'
+import ButtonToolbar from './components/ButtonToolbar'
 import './styles.scss'
-import { getPossibleElementByQuerySelector } from './utils'
+import { waitForElemToBeVisible } from './utils'
 
-async function mount(question: string, siteConfig: SearchEngine) {
-  const container = document.createElement('div')
-  container.className = 'chat-gpt-container'
+// inject libs, need to be in the DOM to access window variable
+const j = document.createElement('script')
+j.src = Browser.runtime.getURL('libs.js')
+;(document.head || document.documentElement).appendChild(j)
 
-  const userConfig = await getUserConfig()
-  let theme: Theme
-  if (userConfig.theme === Theme.Auto) {
-    theme = detectSystemColorScheme()
-  } else {
-    theme = userConfig.theme
-  }
-  if (theme === Theme.Dark) {
-    container.classList.add('gpt-dark')
-  } else {
-    container.classList.add('gpt-light')
-  }
+const CONTAINER_CN = 'gpt-toolbar-container'
 
-  const siderbarContainer = getPossibleElementByQuerySelector(siteConfig.sidebarContainerQuery)
-  if (siderbarContainer) {
-    siderbarContainer.prepend(container)
-  } else {
-    container.classList.add('sidebar-free')
-    const appendContainer = getPossibleElementByQuerySelector(siteConfig.appendContainerQuery)
-    if (appendContainer) {
-      appendContainer.appendChild(container)
+function insertComposeToolbar() {
+  for (const elem of document.querySelectorAll('[command="Files"]')) {
+    const parentBar = elem.parentElement?.parentElement?.parentElement
+    const sendButton = parentBar?.firstElementChild
+
+    if (!sendButton) {
+      console.debug('No Toolbar found')
+      continue
     }
-  }
 
-  render(
-    <ChatGPTContainer question={question} triggerMode={userConfig.triggerMode || 'always'} />,
-    container,
-  )
+    const textarea = sendButton.closest('.M9')?.querySelector('div[g_editable="true"]')
+
+    if (!textarea) {
+      return
+    }
+
+    let alreadyAdded = false
+    for (const child of parentBar.children) {
+      if (child.classList.contains(CONTAINER_CN)) {
+        alreadyAdded = true
+      }
+    }
+
+    if (alreadyAdded) {
+      continue
+    }
+
+    const root = document.createElement('td')
+    root.className = CONTAINER_CN
+    sendButton.insertAdjacentElement('afterend', root)
+
+    const isReplyOrForward = !!sendButton.closest('td.Bu')
+
+    render(<ButtonToolbar isReply={isReplyOrForward} textarea={textarea as HTMLElement} />, root)
+  }
 }
 
-const siteRegex = new RegExp(Object.keys(config).join('|'))
-const siteName = location.hostname.match(siteRegex)![0]
-const siteConfig = config[siteName]
-
 async function run() {
-  const searchInput = getPossibleElementByQuerySelector<HTMLInputElement>(siteConfig.inputQuery)
-  if (searchInput && searchInput.value) {
-    console.debug('Mount ChatGPT on', siteName)
-    const userConfig = await getUserConfig()
-    const searchValueWithLanguageOption =
-      userConfig.language === Language.Auto
-        ? searchInput.value
-        : `${searchInput.value}(in ${userConfig.language})`
-    mount(searchValueWithLanguageOption, siteConfig)
-  }
+  await waitForElemToBeVisible('#gptmail-info')
+
+  // This covers the case where the user refresh with the reply box opened
+  setTimeout(insertComposeToolbar, 500)
+
+  const composeObserver = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      for (const added of mutation.addedNodes) {
+        if (added.nodeType === Node.ELEMENT_NODE) {
+          const elem = added as Element
+          if (elem.classList && elem.classList.contains('M9')) {
+            insertComposeToolbar()
+          }
+        }
+      }
+    }
+  })
+
+  composeObserver.observe(document.body, { subtree: true, childList: true })
 }
 
 run()
-
-if (siteConfig.watchRouteChange) {
-  siteConfig.watchRouteChange(run)
-}

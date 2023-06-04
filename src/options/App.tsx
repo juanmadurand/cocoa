@@ -1,7 +1,4 @@
-import { CssBaseline, GeistProvider, Radio, Select, Text, Toggle, useToasts } from '@geist-ui/core'
-import { capitalize } from 'lodash-es'
-import { useCallback, useEffect, useMemo, useState } from 'preact/hooks'
-import '../base.css'
+import '@/base.css'
 import {
   getUserConfig,
   Language,
@@ -9,9 +6,12 @@ import {
   TriggerMode,
   TRIGGER_MODE_TEXT,
   updateUserConfig,
-} from '../config'
-import logo from '../logo.png'
-import { detectSystemColorScheme, getExtensionVersion } from '../utils'
+} from '@/config'
+import logo from '@/logo.png'
+import { detectSystemColorScheme, getExtensionVersion } from '@/utils'
+import { CssBaseline, GeistProvider, Radio, Select, Text, Toggle, useToasts } from '@geist-ui/core'
+import { capitalize } from 'lodash-es'
+import { useCallback, useEffect, useMemo, useState } from 'preact/hooks'
 import ProviderSelect from './ProviderSelect'
 
 function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => void }) {

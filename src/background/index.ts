@@ -1,22 +1,26 @@
+import { getPrompt } from '@/content-script/utils'
 import Browser from 'webextension-polyfill'
 import { getProviderConfigs, ProviderType } from '../config'
+import { GptRequestEventData, Provider } from '../types'
 import { ChatGPTProvider, getChatGPTAccessToken, sendMessageFeedback } from './providers/chatgpt'
 import { OpenAIProvider } from './providers/openai'
-import { Provider } from './types'
 
-async function generateAnswers(port: Browser.Runtime.Port, question: string) {
+// Returns either ChatGPT or OpenAI Providers depending on config
+async function getProvider(): Promise<Provider> {
   const providerConfigs = await getProviderConfigs()
-
-  let provider: Provider
   if (providerConfigs.provider === ProviderType.ChatGPT) {
     const token = await getChatGPTAccessToken()
-    provider = new ChatGPTProvider(token)
+    return new ChatGPTProvider(token)
   } else if (providerConfigs.provider === ProviderType.GPT3) {
     const { apiKey, model } = providerConfigs.configs[ProviderType.GPT3]!
-    provider = new OpenAIProvider(apiKey, model)
+    return new OpenAIProvider(apiKey, model)
   } else {
     throw new Error(`Unknown provider ${providerConfigs.provider}`)
   }
+}
+
+async function generateAnswers(port: Browser.Runtime.Port, event: GptRequestEventData) {
+  const provider = await getProvider()
 
   const controller = new AbortController()
   port.onDisconnect.addListener(() => {
@@ -24,27 +28,31 @@ async function generateAnswers(port: Browser.Runtime.Port, question: string) {
     cleanup?.()
   })
 
+  const prompt = getPrompt(event)
+
+  if (!prompt) {
+    // TODO: Handle error
+    return
+  }
   const { cleanup } = await provider.generateAnswer({
-    prompt: question,
+    prompt,
     signal: controller.signal,
     onEvent(event) {
-      if (event.type === 'done') {
-        port.postMessage({ event: 'DONE' })
-        return
-      }
-      port.postMessage(event.data)
+      port.postMessage(event)
     },
   })
 }
 
 Browser.runtime.onConnect.addListener((port) => {
-  port.onMessage.addListener(async (msg) => {
-    console.debug('received msg', msg)
+  port.onMessage.addListener(async (event) => {
+    console.debug('received msg', event)
     try {
-      await generateAnswers(port, msg.question)
+      if (event.type === 'request') {
+        await generateAnswers(port, event.data as GptRequestEventData)
+      }
     } catch (err: any) {
       console.error(err)
-      port.postMessage({ error: err.message })
+      port.postMessage({ type: 'error', error: err.message })
     }
   })
 })
