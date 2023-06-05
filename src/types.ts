@@ -26,7 +26,7 @@ export type GptRequestEventData = {
    * User input
    */
   query: string
-  email: EmailData
+  email?: EmailData
 }
 
 export interface GenerateAnswerParams {

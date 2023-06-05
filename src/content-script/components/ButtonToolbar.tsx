@@ -11,13 +11,14 @@ import { PromptModal } from './PromptModal'
 export type QueryStatus = 'success' | 'error' | undefined
 
 type getAnswerProps = {
+  isReply: boolean
   query: string
   onStream: (answer: string) => void
   onDone: () => void
   onError: (message: string) => void
 }
 
-function fetchAnswer({ query, onStream, onDone, onError }: getAnswerProps): void {
+function fetchAnswer({ isReply, query, onStream, onDone, onError }: getAnswerProps): void {
   const port = Browser.runtime.connect()
 
   const listener = (msg: GptEvent) => {
@@ -41,15 +42,18 @@ function fetchAnswer({ query, onStream, onDone, onError }: getAnswerProps): void
   // Open port to pass answer
   port.onMessage.addListener(listener)
 
-  const emailData = extractEmailThread()
-
-  if (!emailData) {
-    return
-  }
-
   const data: GptRequestEventData = {
     query,
-    email: emailData,
+  }
+
+  if (isReply) {
+    const emailData = extractEmailThread()
+
+    if (!emailData) {
+      return
+    }
+
+    data.email = emailData
   }
 
   // Send answer to background
@@ -86,6 +90,7 @@ function ButtonToolbar({ isReply, textarea }: Props) {
 
     textarea.innerHTML = `<div class="gptloader"></div>`
     fetchAnswer({
+      isReply,
       query: text,
       onStream: (answer) => {
         textarea.innerHTML = `${answer

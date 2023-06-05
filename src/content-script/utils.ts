@@ -29,15 +29,14 @@ export function waitForElemToBeVisible(selector: string) {
 }
 
 export function getPrompt(event: GptRequestEventData): string | null {
-  const {
-    email: { author, subject, messages },
-    query,
-  } = event
+  const { email, query } = event
 
-  if (!messages?.length) {
+  if (!email) {
     // TODO: Support for compose new email
-    return null
+    return `Help me write an email. Short email: "${query}". Long email:`
   }
+
+  const { author, subject, messages } = email
 
   const lastThread = messages[messages.length - 1]
 
