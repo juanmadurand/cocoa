@@ -1,4 +1,4 @@
-$primary: rgb(30, 194, 142);
+$primary: rgb(30, 194, 142); // #1dc28d
 $primary-light: lighten($primary, 6%);
 $primary-dark: darken($primary, 10%);
 $toolbar-height: 32px;
@@ -33,6 +33,10 @@ $toolbar-height: 32px;
     height: 15px;
     background: $primary-dark;
   }
+}
+
+.gpt-message {
+  background-color: $primary;
 }
 
 .gpt-modal {

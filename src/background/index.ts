@@ -1,4 +1,4 @@
-import { getPrompt } from '@/content-script/utils'
+import { getPrompt, logger } from '@/content-script/utils'
 import Browser from 'webextension-polyfill'
 import { getProviderConfigs, ProviderType } from '../config'
 import { GptRequestEventData, Provider } from '../types'
@@ -52,7 +52,19 @@ Browser.runtime.onConnect.addListener((port) => {
       }
     } catch (err: any) {
       console.error(err)
-      port.postMessage({ type: 'error', error: err.message })
+      logger('Error fetching answer', err)
+
+      let error
+      // try to parse gpt response
+      try {
+        const body = JSON.parse(err.message)
+        if (body?.detail) {
+          error = body.detail
+        }
+      } catch (e) {
+        error = err.message
+      }
+      port.postMessage({ type: 'error', error })
     }
   })
 })

@@ -1,11 +1,10 @@
-import logo from '@/logo.png'
 import { GptEvent, GptRequestEventData } from '@/types'
 import { CheckIcon, XIcon } from '@primer/octicons-react'
 import { useState } from 'preact/hooks'
 import { memo, useEffect } from 'react'
 import Browser from 'webextension-polyfill'
-import { logger } from '../utils'
 import { extractEmailThread } from '../utils/dom'
+import { AppLogo } from './Icons'
 import { PromptModal } from './PromptModal'
 
 export type QueryStatus = 'success' | 'error' | undefined
@@ -25,7 +24,6 @@ function fetchAnswer({ isReply, query, onStream, onDone, onError }: getAnswerPro
     if (msg.type === 'error') {
       port.disconnect()
       onError(msg.error)
-      logger('Error fetching answer', msg)
       return
     }
     if (msg.type === 'answer' && msg.data?.text) {
@@ -83,6 +81,15 @@ function ButtonToolbar({ isReply, textarea }: Props) {
     }
   }, [isReply, textarea])
 
+  // hide error after few seconds
+  useEffect(() => {
+    if (error) {
+      setTimeout(() => {
+        setError('')
+      }, 3000)
+    }
+  }, [error])
+
   const onSubmit = (text: string) => {
     if (!textarea) {
       return
@@ -120,12 +127,7 @@ function ButtonToolbar({ isReply, textarea }: Props) {
       )
     }
     if (error) {
-      return (
-        <p>
-          Failed to load response from ChatGPT:
-          <span className="break-all block">{error}</span>
-        </p>
-      )
+      return <div className="gpt-message text-xs p-2 text-white">Failed: {error}</div>
     }
 
     return (
@@ -151,7 +153,7 @@ function ButtonToolbar({ isReply, textarea }: Props) {
     <div className="gpt-toolbar flex items-center antialiased !font-sans ml-4 rounded-md">
       {renderBody()}
       <div className="divider"></div>
-      <img src={logo} className="w-5 h-5 px-2" />
+      <AppLogo fill="#fff" className="w-5 h-5 px-2" />
     </div>
   )
 }
