@@ -132,19 +132,23 @@ function ButtonToolbar({ isReply, textarea }: Props) {
 
     return (
       <>
-        <button
-          className="gpt-toolbar-btn rounded-l-md"
-          type="button"
-          onClick={() => onSubmit('positive')}
-        >
-          <CheckIcon />
-        </button>
-        <div className="divider"></div>
-        <button className="gpt-toolbar-btn" type="button" onClick={() => onSubmit('negative')}>
-          <XIcon />
-        </button>
-        <div className="divider"></div>
-        <PromptModal onSubmit={onSubmit} />
+        {isReply && (
+          <>
+            <button
+              className="gpt-toolbar-btn rounded-l-md"
+              type="button"
+              onClick={() => onSubmit('positive')}
+            >
+              <CheckIcon />
+            </button>
+            <div className="divider"></div>
+            <button className="gpt-toolbar-btn" type="button" onClick={() => onSubmit('negative')}>
+              <XIcon />
+            </button>
+            <div className="divider"></div>
+          </>
+        )}
+        <PromptModal onSubmit={onSubmit} isReply={isReply} />
       </>
     )
   }

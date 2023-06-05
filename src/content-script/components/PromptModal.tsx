@@ -8,9 +8,10 @@ export type QueryStatus = 'success' | 'error' | undefined
 
 interface Props {
   onSubmit: (opt: string) => void
+  isReply: boolean
 }
 
-export function PromptModal({ onSubmit }: Props) {
+export function PromptModal({ onSubmit, isReply }: Props) {
   const [open, setOpen] = useState(false)
   const [customText, setCustomText] = useState('')
   const ref = useRef<HTMLDivElement>(null)
@@ -48,7 +49,11 @@ export function PromptModal({ onSubmit }: Props) {
 
   return (
     <div className="gpt-dropdown">
-      <button className="gpt-toolbar-btn" type="button" onClick={handleToggle}>
+      <button
+        className={`${!isReply ? 'rounded-l-md' : ''} gpt-toolbar-btn`}
+        type="button"
+        onClick={handleToggle}
+      >
         <CommentIcon />
       </button>
       {open && (
@@ -58,7 +63,11 @@ export function PromptModal({ onSubmit }: Props) {
               value={customText}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
-              placeholder="Provide brief description of your answer"
+              placeholder={
+                isReply
+                  ? 'Provide a brief summary of your answer'
+                  : 'Provide a brief summary of your email'
+              }
               className="p-1 pr-4 flex-1 rounded-l-sm border-0 placeholder:text-slate-600"
               autoFocus
             />
