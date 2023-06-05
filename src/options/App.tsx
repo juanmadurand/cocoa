@@ -60,14 +60,8 @@ function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => voi
           <span className="font-semibold">Gmail Composer AI (v{getExtensionVersion()})</span>
         </div>
         <div className="flex flex-row gap-3">
-          <a href="https://chatgpt-for-google.canny.io/changelog" target="_blank" rel="noreferrer">
-            Changelog
-          </a>
           <a href="https://github.com/juanmadurand/cocoa/issues" target="_blank" rel="noreferrer">
             Feedback
-          </a>
-          <a href="https://twitter.com/chatgpt4google" target="_blank" rel="noreferrer">
-            Twitter
           </a>
           <a href="https://github.com/juanmadurand/cocoa" target="_blank" rel="noreferrer">
             Source code

@@ -1,23 +1,18 @@
 import { Button, Input, Select, Spinner, Tabs, useInput, useToasts } from '@geist-ui/core'
 import { FC, useCallback, useState } from 'react'
 import useSWR from 'swr'
-import { fetchExtensionConfigs } from '../api'
 import { getProviderConfigs, ProviderConfigs, ProviderType, saveProviderConfigs } from '../config'
 
 interface ConfigProps {
   config: ProviderConfigs
-  models: string[]
 }
 
-async function loadModels(): Promise<string[]> {
-  const configs = await fetchExtensionConfigs()
-  return configs.openai_model_names
-}
+const OPEN_AI_MODELS = ['text-davinci-003']
 
-const ConfigPanel: FC<ConfigProps> = ({ config, models }) => {
+const ConfigPanel: FC<ConfigProps> = ({ config }) => {
   const [tab, setTab] = useState<ProviderType>(config.provider)
   const { bindings: apiKeyBindings } = useInput(config.configs[ProviderType.GPT3]?.apiKey ?? '')
-  const [model, setModel] = useState(config.configs[ProviderType.GPT3]?.model ?? models[0])
+  const [model, setModel] = useState(config.configs[ProviderType.GPT3]?.model ?? OPEN_AI_MODELS[0])
   const { setToast } = useToasts()
 
   const save = useCallback(async () => {
@@ -26,7 +21,7 @@ const ConfigPanel: FC<ConfigProps> = ({ config, models }) => {
         alert('Please enter your OpenAI API key')
         return
       }
-      if (!model || !models.includes(model)) {
+      if (!model || !OPEN_AI_MODELS.includes(model)) {
         alert('Please select a valid model')
         return
       }
@@ -38,7 +33,7 @@ const ConfigPanel: FC<ConfigProps> = ({ config, models }) => {
       },
     })
     setToast({ text: 'Changes saved', type: 'success' })
-  }, [apiKeyBindings.value, model, models, setToast, tab])
+  }, [apiKeyBindings.value, model, setToast, tab])
 
   return (
     <div className="flex flex-col gap-3">
@@ -59,7 +54,7 @@ const ConfigPanel: FC<ConfigProps> = ({ config, models }) => {
                 onChange={(v) => setModel(v as string)}
                 placeholder="model"
               >
-                {models.map((m) => (
+                {OPEN_AI_MODELS.map((m) => (
                   <Select.Option key={m} value={m}>
                     {m}
                   </Select.Option>
@@ -89,13 +84,13 @@ const ConfigPanel: FC<ConfigProps> = ({ config, models }) => {
 
 function ProviderSelect() {
   const query = useSWR('provider-configs', async () => {
-    const [config, models] = await Promise.all([getProviderConfigs(), loadModels()])
-    return { config, models }
+    const config = await getProviderConfigs()
+    return { config }
   })
   if (query.isLoading) {
     return <Spinner />
   }
-  return <ConfigPanel config={query.data!.config} models={query.data!.models} />
+  return <ConfigPanel config={query.data!.config} />
 }
 
 export default ProviderSelect
