@@ -1,10 +1,12 @@
 import logo from '@/logo.png'
 import { GptEvent, GptRequestEventData } from '@/types'
+import { CheckIcon, XIcon } from '@primer/octicons-react'
 import { useState } from 'preact/hooks'
 import { memo, useEffect } from 'react'
 import Browser from 'webextension-polyfill'
+import { logger } from '../utils'
 import { extractEmailThread } from '../utils/dom'
-import { CloseIcon, OkIcon } from './Icons'
+import { PromptModal } from './PromptModal'
 
 export type QueryStatus = 'success' | 'error' | undefined
 
@@ -21,9 +23,8 @@ function fetchAnswer({ query, onStream, onDone, onError }: getAnswerProps): void
   const listener = (msg: GptEvent) => {
     if (msg.type === 'error') {
       port.disconnect()
-      console.log('ERROR', msg.error)
       onError(msg.error)
-      // logger('Error fetching answer', msg)
+      logger('Error fetching answer', msg)
       return
     }
     if (msg.type === 'answer' && msg.data?.text) {
@@ -59,7 +60,6 @@ function fetchAnswer({ query, onStream, onDone, onError }: getAnswerProps): void
 }
 
 interface Props {
-  // onSubmit: (opt: string) => void
   isReply: boolean
   textarea: HTMLElement
 }
@@ -75,7 +75,6 @@ function ButtonToolbar({ isReply, textarea }: Props) {
     }
     const el = document.querySelector('[g_editable="true"]')
     if (el) {
-      // textarea.current = el as HTMLElement;
       setInitialHtml(textarea.innerHTML)
     }
   }, [isReply, textarea])
@@ -126,13 +125,19 @@ function ButtonToolbar({ isReply, textarea }: Props) {
 
     return (
       <>
-        <button className="gpt-toolbar-btn" type="button" onClick={() => onSubmit('positive')}>
-          <OkIcon />
+        <button
+          className="gpt-toolbar-btn rounded-l-md"
+          type="button"
+          onClick={() => onSubmit('positive')}
+        >
+          <CheckIcon />
         </button>
         <div className="divider"></div>
         <button className="gpt-toolbar-btn" type="button" onClick={() => onSubmit('negative')}>
-          <CloseIcon />
+          <XIcon />
         </button>
+        <div className="divider"></div>
+        <PromptModal onSubmit={onSubmit} />
       </>
     )
   }

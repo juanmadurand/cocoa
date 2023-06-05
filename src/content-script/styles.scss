@@ -1,12 +1,12 @@
 $primary: rgb(30, 194, 142);
 $primary-light: lighten($primary, 6%);
 $primary-dark: darken($primary, 10%);
+$toolbar-height: 32px;
 
 .gpt-toolbar {
   background-color: $primary;
-  overflow: hidden;
   position: relative;
-  height: 32px;
+  height: $toolbar-height;
   &-btn {
     padding: 0.5rem;
     cursor: pointer;
@@ -32,5 +32,26 @@ $primary-dark: darken($primary, 10%);
     width: 1px;
     height: 15px;
     background: $primary-dark;
+  }
+}
+
+.gpt-modal {
+  bottom: calc($toolbar-height + 8px);
+  background: $primary;
+  z-index: 1;
+  transform: translateX(-50%);
+  margin-left: 16px;
+  width: 280px;
+  &-submit {
+    background-color: $primary-dark;
+  }
+  textarea {
+    width: 100%;
+    outline: 0;
+    background: #fff;
+    box-sizing: border-box;
+    min-height: 40px;
+    font-size: 12px;
+    resize: none;
   }
 }
