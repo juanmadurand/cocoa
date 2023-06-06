@@ -1,57 +1,10 @@
 import '@/base.css'
-import {
-  getUserConfig,
-  Language,
-  Theme,
-  TriggerMode,
-  TRIGGER_MODE_TEXT,
-  updateUserConfig,
-} from '@/config'
 import logo from '@/logo.png'
-import { detectSystemColorScheme, getExtensionVersion } from '@/utils'
-import { CssBaseline, GeistProvider, Radio, Select, Text, Toggle, useToasts } from '@geist-ui/core'
-import { capitalize } from 'lodash-es'
-import { useCallback, useEffect, useMemo, useState } from 'preact/hooks'
+import { getExtensionVersion } from '@/utils'
+import { Text, Toggle } from '@geist-ui/core'
 import ProviderSelect from './ProviderSelect'
 
-function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => void }) {
-  const [triggerMode, setTriggerMode] = useState<TriggerMode>(TriggerMode.Always)
-  const [language, setLanguage] = useState<Language>(Language.Auto)
-  const { setToast } = useToasts()
-
-  useEffect(() => {
-    getUserConfig().then((config) => {
-      setTriggerMode(config.triggerMode)
-      setLanguage(config.language)
-    })
-  }, [])
-
-  const onTriggerModeChange = useCallback(
-    (mode: TriggerMode) => {
-      setTriggerMode(mode)
-      updateUserConfig({ triggerMode: mode })
-      setToast({ text: 'Changes saved', type: 'success' })
-    },
-    [setToast],
-  )
-
-  const onThemeChange = useCallback(
-    (theme: Theme) => {
-      updateUserConfig({ theme })
-      props.onThemeChange(theme)
-      setToast({ text: 'Changes saved', type: 'success' })
-    },
-    [props, setToast],
-  )
-
-  const onLanguageChange = useCallback(
-    (language: Language) => {
-      updateUserConfig({ language })
-      setToast({ text: 'Changes saved', type: 'success' })
-    },
-    [setToast],
-  )
-
+function OptionsPage() {
   return (
     <div className="container mx-auto">
       <nav className="flex flex-row justify-between items-center mt-5 px-2">
@@ -60,62 +13,24 @@ function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => voi
           <span className="font-semibold">Gmail Composer AI (v{getExtensionVersion()})</span>
         </div>
         <div className="flex flex-row gap-3">
-          <a href="https://github.com/juanmadurand/cocoa/issues" target="_blank" rel="noreferrer">
+          <a
+            href="https://github.com/juanmadurand/gmail-composer-ai/issues"
+            target="_blank"
+            rel="noreferrer"
+          >
             Feedback
           </a>
-          <a href="https://github.com/juanmadurand/cocoa" target="_blank" rel="noreferrer">
+          <a
+            href="https://github.com/juanmadurand/gmail-composer-ai"
+            target="_blank"
+            rel="noreferrer"
+          >
             Source code
           </a>
         </div>
       </nav>
       <main className="w-[500px] mx-auto mt-14">
         <Text h2>Options</Text>
-        <Text h3 className="mt-5">
-          Trigger Mode
-        </Text>
-        <Radio.Group
-          value={triggerMode}
-          onChange={(val) => onTriggerModeChange(val as TriggerMode)}
-        >
-          {Object.entries(TRIGGER_MODE_TEXT).map(([value, texts]) => {
-            return (
-              <Radio key={value} value={value}>
-                {texts.title}
-                <Radio.Description>{texts.desc}</Radio.Description>
-              </Radio>
-            )
-          })}
-        </Radio.Group>
-        <Text h3 className="mt-5">
-          Theme
-        </Text>
-        <Radio.Group value={props.theme} onChange={(val) => onThemeChange(val as Theme)} useRow>
-          {Object.entries(Theme).map(([k, v]) => {
-            return (
-              <Radio key={v} value={v}>
-                {k}
-              </Radio>
-            )
-          })}
-        </Radio.Group>
-        <Text h3 className="mt-5 mb-0">
-          Language
-        </Text>
-        <Text className="my-1">
-          The language used in ChatGPT response. <span className="italic">Auto</span> is
-          recommended.
-        </Text>
-        <Select
-          value={language}
-          placeholder="Choose one"
-          onChange={(val) => onLanguageChange(val as Language)}
-        >
-          {Object.entries(Language).map(([k, v]) => (
-            <Select.Option key={k} value={v}>
-              {capitalize(v)}
-            </Select.Option>
-          ))}
-        </Select>
         <Text h3 className="mt-5 mb-0">
           AI Provider
         </Text>
@@ -134,26 +49,4 @@ function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => voi
   )
 }
 
-function App() {
-  const [theme, setTheme] = useState(Theme.Auto)
-
-  const themeType = useMemo(() => {
-    if (theme === Theme.Auto) {
-      return detectSystemColorScheme()
-    }
-    return theme
-  }, [theme])
-
-  useEffect(() => {
-    getUserConfig().then((config) => setTheme(config.theme))
-  }, [])
-
-  return (
-    <GeistProvider themeType={themeType}>
-      <CssBaseline />
-      <OptionsPage theme={theme} onThemeChange={setTheme} />
-    </GeistProvider>
-  )
-}
-
-export default App
+export default OptionsPage
