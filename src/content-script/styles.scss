@@ -13,6 +13,7 @@ $toolbar-height: 32px;
     background-color: transparent;
     border: none;
     line-height: 0;
+    outline: 0;
     &:hover {
       background-color: $primary-light;
     }

@@ -32,8 +32,7 @@ export function getPrompt(event: GptRequestEventData): string | null {
   const { email, query } = event
 
   if (!email) {
-    // TODO: Support for compose new email
-    return `Help me write an email. Short email: "${query}". Long email:`
+    return `Help me compose a new email. Please output only the reply body, no subject, no sender name. Short email: "${query}". Long email:`
   }
 
   const { author, subject, messages } = email
@@ -47,11 +46,14 @@ export function getPrompt(event: GptRequestEventData): string | null {
     )
     .join(`\n`)
 
-  return `
+  return `Generate an answer to this email. 
+  Please output only the reply body, no subject, no sender name.
+  --- Email Start ---
   Subject: "${subject}"
   Sender name: "${lastThread.from}"
-  Email body: " ${threads}"
+  Email thread: "${threads}"
   Replier name: "${author}"
   Short reply: "${query}"
+  --- Email End ---
   Long reply:`
 }
