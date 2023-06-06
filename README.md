@@ -2,7 +2,7 @@
 
 A browser extension to help you create emails on Gmail using ChatGPT.
 
-[Install from Chrome Web Store](#https://chrome.google.com/webstore/detail/gmail-composer-ai/admmpgllajcpkahmgeaaghkopeoalmbi)
+[Install from Chrome Web Store](https://chrome.google.com/webstore/detail/gmail-composer-ai/admmpgllajcpkahmgeaaghkopeoalmbi)
 
 ## Screenshot
 
